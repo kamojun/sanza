@@ -9,9 +9,6 @@ class Compass with ChangeNotifier {
   Compass() {
     FlutterCompass.events?.listen((value) {
       if (value.heading != null) _angle = value.heading! / 180 * pi;
-      if (value.heading != null) {
-        print(value.heading!);
-      }
       notifyListeners();
     });
   }

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../models/geo.dart';
 import '../compass.dart';
+import '../data/magnetic_declination.dart';
 
 class Chart extends StatelessWidget {
   final Location currentLocation;
@@ -15,10 +16,12 @@ class Chart extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Consumer<Compass>(builder: (ctx, compass, child) {
+      final angle = compass.angle -
+          getMagneticDecliniation(currentLocation.lat, currentLocation.lng);
       return Container(
         child: CustomPaint(
           size: Size(size.width, size.width),
-          painter: MyPainter(currentLocation, compass.angle, places, size),
+          painter: MyPainter(currentLocation, angle, places, size),
         ),
       );
     });
