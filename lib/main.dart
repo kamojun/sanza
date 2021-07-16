@@ -90,15 +90,14 @@ class _MainPageState extends State<MainPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               TextButton(
-                child: Text('現在地取得'),
+                child: Text('現在地の緯度経度を取得'),
                 onPressed: _getCurrentUserLocation,
               ),
-              _location == null
-                  ? Text("location unknown")
-                  : Text(
-                      'lat: ${_location!.lat.toStringAsFixed(3)}\nlng: ${_location!.lng.toStringAsFixed(3)}',
-                      style: Theme.of(context).textTheme.headline6,
-                    ),
+              if (_location != null)
+                Text(
+                  '北緯${_location!.lat.toStringAsFixed(3)}\n東経${_location!.lng.toStringAsFixed(3)}',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
               if (_location != null)
                 Expanded(
                   child: Center(

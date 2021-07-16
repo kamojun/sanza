@@ -53,6 +53,7 @@ class MyPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
       ..color = Colors.grey.shade300;
+
     void writeText(String text, Offset offset, {Color? color}) {
       final textStyle = TextStyle(
         color: color == null ? Colors.blue : color,
@@ -65,7 +66,9 @@ class MyPainter extends CustomPainter {
         ),
         textDirection: TextDirection.ltr,
       )..layout(minWidth: 0, maxWidth: size.width);
-      textPainter.paint(canvas, offset);
+      var newOffset =
+          offset - Offset(textPainter.width / 2, textPainter.height / 2);
+      textPainter.paint(canvas, newOffset);
     }
 
     void drawPlace(Place place) {
@@ -77,11 +80,17 @@ class MyPainter extends CustomPainter {
       final dist = displayDistance(centerLocation.distanceTo(place));
       final offset = Offset(dist * math.cos(degree), dist * math.sin(degree));
       canvas.drawLine(Offset.zero, offset, myPaint);
-      writeText(place.name, offset * 1.1 + Offset(-30, -10));
+      writeText(place.name, offset);
     }
 
     canvas.translate(center, center);
     double halfcenter = center / 2;
+    canvas.drawCircle(
+        Offset.zero,
+        5,
+        Paint()
+          ..style = PaintingStyle.fill
+          ..color = Colors.blue.shade300); // 100キロ
     canvas.drawCircle(Offset.zero, halfcenter, myPaint); // 100キロ
     writeText("100km", Offset(halfcenter, 0), color: Colors.grey.shade300);
     writeText("北", rotate(Offset(0, -halfcenter), -direciton) - Offset(10, 10));

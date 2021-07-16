@@ -4,6 +4,8 @@ import 'data/places.dart';
 import 'models/geo.dart';
 
 class PlaceSearch extends SearchDelegate<Place> {
+  // List<int> history = [];
+
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
@@ -47,7 +49,12 @@ class PlaceSearch extends SearchDelegate<Place> {
         var info = place.info['所属'] ?? place.info['山域'] ?? "";
 
         return ListTile(
-          onTap: () => close(context, place),
+          onTap: () {
+            // var idx = Places.indexOf(place);
+            // if (history.contains(idx)) history.remove(idx);
+            // history.add(idx);
+            close(context, place);
+          },
           leading: Icon(Icons.location_on),
           title: Text(place.name),
           trailing: Text(info),
