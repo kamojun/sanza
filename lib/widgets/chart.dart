@@ -7,23 +7,42 @@ import '../models/geo.dart';
 import '../compass.dart';
 import '../data/magnetic_declination.dart';
 
-class Chart extends StatelessWidget {
+class Chart extends StatefulWidget {
   final Location currentLocation;
   final double direction;
   final List<Place> places;
   Chart(this.currentLocation, this.direction, this.places);
+
+  @override
+  _ChartState createState() => _ChartState();
+}
+
+class _ChartState extends State<Chart> {
+  double _scale = 100; // 画面の半分に来るような距離
+  double _cachedScale = 100;
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Consumer<Compass>(builder: (ctx, compass, child) {
       final angle = compass.angle -
-          getMagneticDecliniation(currentLocation.lat, currentLocation.lng);
-      return Container(
-        child: CustomPaint(
-          size: Size(size.width, size.width),
-          painter: MyPainter(currentLocation, angle, places, size),
-        ),
-      );
+          getMagneticDecliniation(
+              widget.currentLocation.lat, widget.currentLocation.lng);
+      return GestureDetector(
+          child: Container(
+            child: CustomPaint(
+              size: Size(size.width, size.width),
+              painter: MyPainter(
+                  widget.currentLocation, angle, widget.places, size, _scale),
+            ),
+          ),
+          onScaleStart: (ScaleStartDetails details) {
+            _cachedScale = _scale;
+          },
+          onScaleUpdate: (ScaleUpdateDetails details) {
+            setState(() {
+              _scale = _cachedScale / details.scale;
+            });
+          });
     });
   }
 }
@@ -40,11 +59,12 @@ class MyPainter extends CustomPainter {
   final List<Place> places;
   final Size size;
   final double center;
-  MyPainter(this.centerLocation, this.direciton, this.places, this.size)
+  final double scale;
+  MyPainter(
+      this.centerLocation, this.direciton, this.places, this.size, this.scale)
       : center = size.width / 2;
   double displayDistance(double realDistance) {
-    const a = 100; // centerの半分となるときのrealDistance
-    return (center - 30) * (1 - a / (realDistance + a));
+    return (center - 30) * (1 - this.scale / (realDistance + this.scale));
   }
 
   @override
@@ -91,8 +111,9 @@ class MyPainter extends CustomPainter {
         Paint()
           ..style = PaintingStyle.fill
           ..color = Colors.blue.shade300); // 100キロ
-    canvas.drawCircle(Offset.zero, halfcenter, myPaint); // 100キロ
-    writeText("100km", Offset(halfcenter, 0), color: Colors.grey.shade300);
+    canvas.drawCircle(Offset.zero, displayDistance(100), myPaint); // 100キロ
+    writeText("100km", Offset(displayDistance(100), 0),
+        color: Colors.grey.shade300);
     writeText("北", rotate(Offset(0, -halfcenter), -direciton) - Offset(10, 10));
     places.forEach(drawPlace);
   }
