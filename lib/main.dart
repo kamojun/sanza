@@ -34,6 +34,7 @@ class _MainPageState extends State<MainPage> {
   Location? _location;
   double _direction = 0;
   List<Place> _places = [];
+  bool _drawNESW = true;
 
   Future<void> _getCurrentUserLocation() async {
     bool serviceEnabled;
@@ -101,17 +102,30 @@ class _MainPageState extends State<MainPage> {
               if (_location != null)
                 Expanded(
                   child: Center(
-                    child: Chart(_location!, _direction, _places),
+                    child: Chart(_location!, _direction, _places, _drawNESW),
                   ),
                 ),
               if (_location != null)
                 Container(
                   margin: EdgeInsets.all(20),
-                  child: TextButton(
-                    child: Text('全て消去'),
-                    onPressed: () => setState(() {
-                      _places = [];
-                    }),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        child: _drawNESW ? Text('方角を非表示') : Text('方角を表示'),
+                        onPressed: () => setState(() {
+                          _drawNESW = !_drawNESW;
+                        }),
+                      ),
+                      TextButton(
+                        child: Text('全て消去'),
+                        onPressed: _places.length == 0
+                            ? null
+                            : () => setState(() {
+                                  _places = [];
+                                }),
+                      ),
+                    ],
                   ),
                 ),
             ],
