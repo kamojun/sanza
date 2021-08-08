@@ -60,7 +60,8 @@ class _ChartState extends State<Chart> {
             Positioned(
               left: center - InfoBox.width / 2,
               top: center - InfoBox.height / 2,
-              child: InfoBox(selectedPlace!, () {
+              child: InfoBox(selectedPlace!,
+                  widget.currentLocation.distanceTo(selectedPlace!), () {
                 setState(() {
                   widget.places.remove(selectedPlace);
                   selectedPlace = null;

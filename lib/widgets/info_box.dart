@@ -6,8 +6,10 @@ class InfoBox extends StatelessWidget {
   static const double width = 200;
   static const double height = 200;
   final Place place;
+  final double distance;
   final void Function()? onDelete;
-  const InfoBox(this.place, this.onDelete, {Key? key}) : super(key: key);
+  const InfoBox(this.place, this.distance, this.onDelete, {Key? key})
+      : super(key: key);
   Widget row(String text) {
     return Text(
       text,
@@ -32,6 +34,7 @@ class InfoBox extends StatelessWidget {
             row(place.name),
             row(place.name2),
             ...place.info.entries.map((e) => row('${e.key} : ${e.value}')),
+            row('現在地から : ${distance.toStringAsFixed(1)}km'),
             Spacer(),
             TextButton(
               onPressed: onDelete,
