@@ -135,8 +135,8 @@ class MyPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1
         ..color = Colors.grey.shade300;
-      final ns = rotate(Offset(0, center), -direciton);
-      final ew = rotate(Offset(0, center), -direciton + math.pi / 2);
+      final ns = rotate(Offset(0, -center), -direciton);
+      final ew = rotate(Offset(0, -center), -direciton + math.pi / 2);
       canvas.drawLine(ns, -ns, p);
       canvas.drawLine(ew, -ew, p);
       writeText("N", ns, color: Colors.grey);

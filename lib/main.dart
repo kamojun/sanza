@@ -76,8 +76,8 @@ class _MainPageState extends State<MainPage> {
               icon: Icon(Icons.add),
               tooltip: "場所を追加",
               onPressed: () async {
-                final result =
-                    await showSearch(context: context, delegate: PlaceSearch());
+                final result = await showSearch<Place?>(
+                    context: context, delegate: PlaceSearch());
                 if (result != null)
                   setState(() {
                     _places.add(result);
