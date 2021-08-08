@@ -1,11 +1,14 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/geo.dart';
 import '../compass.dart';
 import '../data/magnetic_declination.dart';
+import '../widgets/info_box.dart';
 
 class Chart extends StatefulWidget {
   final Location currentLocation;
@@ -21,38 +24,89 @@ class Chart extends StatefulWidget {
 class _ChartState extends State<Chart> {
   double _scale = 100; // 画面の半分に来るような距離
   double _cachedScale = 100;
+  get infoShowing => selectedPlace != null;
+  Place? selectedPlace;
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+    final double center = size.width / 2;
     return Consumer<Compass>(builder: (ctx, compass, child) {
       final angle = compass.angle -
           getMagneticDecliniation(
               widget.currentLocation.lat, widget.currentLocation.lng);
-      return GestureDetector(
-        child: Container(
-          child: CustomPaint(
-            size: Size(size.width, size.width),
-            painter: MyPainter(
-              widget.currentLocation,
-              angle,
-              widget.places,
-              size,
-              _scale,
-              widget.drawNESW,
-            ),
-            // child: Text("hello child!!"),
-          ),
+      CustomPaint customPaint = CustomPaint(
+        size: Size(size.width, size.width),
+        painter: MyPainter(
+          widget.currentLocation,
+          angle,
+          widget.places,
+          size,
+          _scale,
+          widget.drawNESW,
         ),
-        onScaleStart: (ScaleStartDetails details) {
-          _cachedScale = _scale;
-        },
-        onScaleUpdate: (ScaleUpdateDetails details) {
-          setState(() {
-            _scale = _cachedScale / details.scale;
-            _scale = math.min(1000, math.max(1, _scale));
-          });
-        },
       );
+      if (infoShowing) {
+        return Stack(
+          children: [
+            ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+              child: GestureDetector(
+                onTap: () => setState(() {
+                  selectedPlace = null;
+                }),
+                child: customPaint,
+              ),
+            ),
+            Positioned(
+              left: center - InfoBox.width / 2,
+              top: center - InfoBox.height / 2,
+              child: InfoBox(selectedPlace!, () {
+                setState(() {
+                  widget.places.remove(selectedPlace);
+                  selectedPlace = null;
+                });
+              }),
+            ),
+          ],
+        );
+      } else {
+        return GestureDetector(
+          child: customPaint,
+          onScaleStart: (ScaleStartDetails details) {
+            _cachedScale = _scale;
+          },
+          onScaleUpdate: (ScaleUpdateDetails details) {
+            setState(() {
+              _scale = _cachedScale / details.scale;
+              _scale = math.min(1000, math.max(0.1, _scale));
+            });
+          },
+          onLongPressStart: (LongPressStartDetails details) {
+            if (widget.places.length > 0) {
+              final poss = widget.places.map((place) {
+                final loc = widget.currentLocation;
+                final degree = loc.azimuthTo(place) - math.pi / 2 - angle;
+                final dist = (center - 30) *
+                    (1 - _scale / (loc.distanceTo(place) + _scale));
+                final ofs = Offset(center + dist * math.cos(degree),
+                    center + dist * math.sin(degree));
+                final dx = ofs.dx - details.localPosition.dx;
+                final dy = ofs.dy - details.localPosition.dy;
+                return dx * dx + dy * dy;
+              }).toList();
+              var currentIndex = 0;
+              for (var index = 1; index < poss.length; index++) {
+                if (poss[index] < poss[currentIndex]) currentIndex = index;
+              }
+              print(poss[currentIndex]);
+              if (poss[currentIndex] < 500)
+                setState(() {
+                  selectedPlace = widget.places[currentIndex];
+                });
+            }
+          },
+        );
+      }
     });
   }
 }
@@ -158,4 +212,41 @@ class MyPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true;
   }
+}
+
+void Balloon(Canvas canvas, Offset ofs) {
+  canvas.drawRRect(
+    RRect.fromRectAndRadius(
+      Rect.fromLTWH(ofs.dx - 30, ofs.dy - 60, 100, 30),
+      Radius.circular(10),
+    ),
+    Paint()
+      ..style = PaintingStyle.fill
+      ..color = Colors.black12,
+  );
+  canvas.drawLine(
+      Offset.zero,
+      Offset.zero,
+      Paint()
+        ..style = PaintingStyle.fill
+        ..strokeWidth = 1
+        ..color = Colors.white);
+  final textStyle = TextStyle(
+    color: Colors.white,
+    fontSize: 20,
+  );
+  TextPainter(
+    text: TextSpan(
+      text: "情報",
+      style: textStyle,
+    ),
+    textDirection: TextDirection.ltr,
+  ).paint(canvas, ofs + Offset(-10, -10));
+  TextPainter(
+    text: TextSpan(
+      text: "削除",
+      style: textStyle,
+    ),
+    textDirection: TextDirection.ltr,
+  ).paint(canvas, ofs + Offset(10, -10));
 }

@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'data/places.dart';
 import 'models/geo.dart';
 
-class PlaceSearch extends SearchDelegate<Place> {
+class PlaceSearch extends SearchDelegate<Place?> {
   // List<int> history = [];
+  PlaceSearch() : super(searchFieldLabel: "山や都市を検索");
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -26,7 +27,7 @@ class PlaceSearch extends SearchDelegate<Place> {
         progress: transitionAnimation,
       ),
       onPressed: () {
-        close(context, Places[0]);
+        close(context, null);
       },
     );
   }
@@ -63,4 +64,16 @@ class PlaceSearch extends SearchDelegate<Place> {
       itemCount: suggestionList.length,
     );
   }
+}
+
+class SimplePageRoute<T> extends PageRouteBuilder<T> {
+  final Widget page;
+  SimplePageRoute({required this.page})
+      : super(
+            pageBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) =>
+                page);
 }
