@@ -2,6 +2,8 @@ import 'dart:math';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import '../data/magnetic_declination.dart' as md;
+
 const EARTH_DIAMETER = 6371;
 
 class Location {
@@ -18,6 +20,11 @@ class Location {
 
   /// 北が0、ラジアン
   double azimuthTo(Location loc) => azimuth(this, loc) / 180 * pi;
+
+  /// 磁北偏角を取得
+  double magneticDecliniation({bool asDegree: false}) => !asDegree
+      ? md.getMagneticDecliniation(lat, lng)
+      : this.magneticDecliniation() / pi * 180;
 }
 
 enum PlaceKind {

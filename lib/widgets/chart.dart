@@ -22,7 +22,8 @@ class Chart extends StatefulWidget {
 class _ChartState extends State<Chart> {
   bool _drawNESW = false;
   Place? selectedPlace;
-  get infoShowing => selectedPlace != null;
+  bool showingCurrentLocationInfo = false;
+  get infoShowing => (selectedPlace != null) || showingCurrentLocationInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -57,9 +58,15 @@ class _ChartState extends State<Chart> {
                 }),
               ),
               TextButton(
-                child: Text('全て消去'),
+                child: Text('全地点消去'),
                 onPressed:
                     widget.places.length == 0 ? null : widget.clearAllPlaces,
+              ),
+              TextButton(
+                child: Text('現在地情報'),
+                onPressed: () => setState(() {
+                  showingCurrentLocationInfo = true;
+                }),
               ),
             ],
           ),
@@ -72,6 +79,7 @@ class _ChartState extends State<Chart> {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => setState(() {
+              showingCurrentLocationInfo = false;
               selectedPlace = null;
             }),
             child: ImageFiltered(
@@ -82,13 +90,15 @@ class _ChartState extends State<Chart> {
           Positioned(
             left: center - InfoBox.width / 2,
             top: center - InfoBox.height / 2,
-            child: InfoBox(selectedPlace!,
-                widget.currentLocation.distanceTo(selectedPlace!), () {
-              widget.removePlace(selectedPlace);
-              setState(() {
-                selectedPlace = null;
-              });
-            }),
+            child: showingCurrentLocationInfo
+                ? InfoBox.currentLocationInfo(widget.currentLocation)
+                : InfoBox.fromPlace(selectedPlace!,
+                    widget.currentLocation.distanceTo(selectedPlace!), () {
+                    widget.removePlace(selectedPlace);
+                    setState(() {
+                      selectedPlace = null;
+                    });
+                  }),
           ),
         ],
       );

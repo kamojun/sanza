@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 
 import '../models/geo.dart';
 import '../compass.dart';
-import '../data/magnetic_declination.dart';
 
 Offset rotate(Offset offset, double degree) {
   final x = offset.dx * math.cos(degree) - offset.dy * math.sin(degree);
@@ -93,8 +92,8 @@ class CompassMapPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1
         ..color = Colors.grey.shade300;
-      final ns = rotate(Offset(0, -center), -angle);
-      final ew = rotate(Offset(0, -center), -angle + math.pi / 2);
+      final ns = rotate(Offset(0, -center + 10), -angle);
+      final ew = rotate(Offset(0, -center + 10), -angle + math.pi / 2);
       canvas.drawLine(ns, -ns, p);
       canvas.drawLine(ew, -ew, p);
       writeText("N", ns, color: Colors.grey);
@@ -144,9 +143,8 @@ class _CompassMapState extends State<CompassMap> {
     final Size size = MediaQuery.of(context).size;
     final double center = size.width / 2;
     return Consumer<Compass>(builder: (ctx, compass, child) {
-      final angle = compass.angle -
-          getMagneticDecliniation(
-              widget.currentLocation.lat, widget.currentLocation.lng);
+      final angle =
+          compass.angle - widget.currentLocation.magneticDecliniation();
       final customPaint = CustomPaint(
         size: Size(widget.size.width, widget.size.width),
         painter: CompassMapPainter(
