@@ -34,6 +34,7 @@ class _MainPageState extends State<MainPage> {
   // LocationData? _locData;
   Location? _location;
   List<Place> _places = [];
+  List<Place> _searchHistory = [];
 
   Future<void> _getCurrentUserLocation() async {
     bool serviceEnabled;
@@ -74,9 +75,12 @@ class _MainPageState extends State<MainPage> {
             child: GestureDetector(
               onTap: () async {
                 final result = await showSearch<Place?>(
-                    context: context, delegate: PlaceSearch());
+                    context: context, delegate: PlaceSearch(_searchHistory));
                 if (result != null)
                   setState(() {
+                    _searchHistory
+                      ..remove(result)
+                      ..add(result);
                     if (!_places.contains(result)) _places.add(result);
                   });
               },

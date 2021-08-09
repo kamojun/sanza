@@ -4,8 +4,8 @@ import 'data/places.dart';
 import 'models/geo.dart';
 
 class PlaceSearch extends SearchDelegate<Place?> {
-  // List<int> history = [];
-  PlaceSearch() : super(searchFieldLabel: "山や都市を検索");
+  final List<Place> history;
+  PlaceSearch(this.history) : super(searchFieldLabel: "山や都市を検索");
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -40,7 +40,7 @@ class PlaceSearch extends SearchDelegate<Place?> {
   @override
   Widget buildSuggestions(BuildContext context) {
     final List<Place> suggestionList = query.isEmpty
-        ? []
+        ? history.reversed.toList()
         : Places.where(
                 (m) => m.name.startsWith(query) || m.name2.startsWith(query))
             .toList();
@@ -51,12 +51,11 @@ class PlaceSearch extends SearchDelegate<Place?> {
 
         return ListTile(
           onTap: () {
-            // var idx = Places.indexOf(place);
-            // if (history.contains(idx)) history.remove(idx);
-            // history.add(idx);
             close(context, place);
           },
-          leading: Icon(Icons.location_on),
+          leading: place.kind == PlaceKind.City
+              ? Icon(Icons.location_city)
+              : Icon(Icons.location_on),
           title: Text(place.name),
           trailing: Text(info),
         );
