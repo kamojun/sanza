@@ -71,7 +71,7 @@ class CompassMapPainter extends CustomPainter {
       final myPaint = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1
-        ..color = Colors.blue.shade300;
+        ..color = Colors.green.shade300;
       final degree = currentLocation.azimuthTo(place) - math.pi / 2 - angle;
       final dist = displayDistance2(currentLocation.distanceTo(place));
       final offset = Offset(dist * math.cos(degree), dist * math.sin(degree));
