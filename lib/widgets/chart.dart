@@ -31,6 +31,7 @@ class _ChartState extends State<Chart> {
     final double center = size.width / 2;
 
     Widget compassMap = Column(
+      key: GlobalObjectKey('the map'),
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Expanded(
@@ -73,37 +74,35 @@ class _ChartState extends State<Chart> {
         ),
       ],
     );
-    if (infoShowing) {
-      return Stack(
-        children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => setState(() {
-              showingCurrentLocationInfo = false;
-              selectedPlace = null;
-            }),
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-              child: AbsorbPointer(child: compassMap),
-            ),
-          ),
-          Positioned(
-            left: center - InfoBox.width / 2,
-            top: center - InfoBox.height / 2,
-            child: showingCurrentLocationInfo
-                ? InfoBox.currentLocationInfo(widget.currentLocation)
-                : InfoBox.fromPlace(selectedPlace!,
-                    widget.currentLocation.distanceTo(selectedPlace!), () {
-                    widget.removePlace(selectedPlace);
-                    setState(() {
-                      selectedPlace = null;
-                    });
-                  }),
-          ),
-        ],
-      );
-    } else {
-      return compassMap;
-    }
+    return infoShowing
+        ? Stack(
+            children: [
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => setState(() {
+                  showingCurrentLocationInfo = false;
+                  selectedPlace = null;
+                }),
+                child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                  child: AbsorbPointer(child: compassMap),
+                ),
+              ),
+              Positioned(
+                left: center - InfoBox.width / 2,
+                top: center - InfoBox.height / 2,
+                child: showingCurrentLocationInfo
+                    ? InfoBox.currentLocationInfo(widget.currentLocation)
+                    : InfoBox.fromPlace(selectedPlace!,
+                        widget.currentLocation.distanceTo(selectedPlace!), () {
+                        widget.removePlace(selectedPlace);
+                        setState(() {
+                          selectedPlace = null;
+                        });
+                      }),
+              ),
+            ],
+          )
+        : compassMap;
   }
 }
