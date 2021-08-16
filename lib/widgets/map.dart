@@ -41,6 +41,12 @@ class CompassMapPainter extends CustomPainter {
     return displayDistance(realDistance, scale, center);
   }
 
+  Offset displayPosition(Place place) {
+    final degree = currentLocation.azimuthTo(place) - math.pi / 2 - angle;
+    final dist = displayDistance2(currentLocation.distanceTo(place));
+    return Offset(dist * math.cos(degree), dist * math.sin(degree));
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     canvas.clipRect(
@@ -67,16 +73,18 @@ class CompassMapPainter extends CustomPainter {
       textPainter.paint(canvas, newOffset);
     }
 
-    void drawPlace(Place place) {
-      final myPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
-        ..color = Colors.green.shade300;
-      final degree = currentLocation.azimuthTo(place) - math.pi / 2 - angle;
-      final dist = displayDistance2(currentLocation.distanceTo(place));
-      final offset = Offset(dist * math.cos(degree), dist * math.sin(degree));
-      canvas.drawLine(Offset.zero, offset, myPaint);
-      writeText(place.name, offset);
+    void drawPlace(Place place, {paintWeak: bool}) {
+      final offset = displayPosition(place);
+      canvas.drawLine(
+        Offset.zero,
+        offset,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1
+          ..color = Colors.green.shade300.withOpacity(0.3),
+      );
+      writeText(place.name, offset,
+          color: paintWeak ? Colors.green.shade100 : Colors.green);
     }
 
     canvas.translate(center, center); // 座標の原点を画面の中心に
@@ -108,7 +116,27 @@ class CompassMapPainter extends CustomPainter {
         ..style = PaintingStyle.fill
         ..color = Colors.green.shade300,
     ); // 100キロ
-    places.forEach(drawPlace);
+    List<int> strongWrittenPlaces = [];
+    List<Offset> strongWrittenPlacePositions = [];
+    // 最後に描画する場所が表示の優先権を有する
+    // 後に描画する場所は、優先権のある場所が近くにある時は薄く描画される
+    int index = places.length;
+    for (var place in places.reversed) {
+      index -= 1;
+      Offset position = displayPosition(place);
+      bool flag = true;
+      for (var offset in strongWrittenPlacePositions) {
+        final d = position - offset;
+        if (d.dx * d.dx + d.dy * d.dy < 500) flag = false;
+      }
+      if (flag) {
+        strongWrittenPlaces.add(index);
+        strongWrittenPlacePositions.add(position);
+      }
+    }
+    for (int i = 0; i < places.length; i++) {
+      drawPlace(places[i], paintWeak: !strongWrittenPlaces.contains(i));
+    }
   }
 
   @override
