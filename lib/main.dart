@@ -81,7 +81,9 @@ class _MainPageState extends State<MainPage> {
                     _searchHistory
                       ..remove(result)
                       ..add(result);
-                    if (!_places.contains(result)) _places.add(result);
+                    _places
+                      ..remove(result)
+                      ..add(result);
                   });
               },
               child: SearchBar(),

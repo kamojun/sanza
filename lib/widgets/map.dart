@@ -100,14 +100,16 @@ class CompassMapPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1
         ..color = Colors.grey.shade300;
-      final ns = rotate(Offset(0, -center + 10), -angle);
-      final ew = rotate(Offset(0, -center + 10), -angle + math.pi / 2);
+      final ns = rotate(Offset(0, -center + 23), -angle);
+      final ew = rotate(Offset(0, -center + 23), -angle + math.pi / 2);
       canvas.drawLine(ns, -ns, p);
       canvas.drawLine(ew, -ew, p);
-      writeText("N", ns, color: Colors.grey);
-      writeText("E", ew, color: Colors.grey);
-      writeText("S", -ns, color: Colors.grey);
-      writeText("W", -ew, color: Colors.grey);
+      final ns2 = rotate(Offset(0, -center + 10), -angle);
+      final ew2 = rotate(Offset(0, -center + 10), -angle + math.pi / 2);
+      writeText("N", ns2, color: Colors.grey);
+      writeText("E", ew2, color: Colors.grey);
+      writeText("S", -ns2, color: Colors.grey);
+      writeText("W", -ew2, color: Colors.grey);
     }
     canvas.drawCircle(
       Offset.zero,
