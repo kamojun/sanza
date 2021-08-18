@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'dart:async';
 
 import './models/geo.dart';
 import './widgets/chart.dart';
 import './widgets/search_bar.dart';
+import './widgets/show_up.dart';
 import './place_search.dart';
 import './compass.dart';
 
@@ -100,9 +102,13 @@ class _MainPageState extends State<MainPage> {
                   onPressed: _getCurrentUserLocation,
                 ),
                 if (_location != null)
-                  Text(
-                    '北緯${_location!.lat.toStringAsFixed(3)}\n東経${_location!.lng.toStringAsFixed(3)}',
-                    style: Theme.of(context).textTheme.headline6,
+                  ShowUp(
+                    delay: Duration(milliseconds: 30),
+                    child: Text(
+                      '北緯${_location!.lat.toStringAsFixed(3)}\n東経${_location!.lng.toStringAsFixed(3)}',
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                    key: ValueKey(DateTime.now()),
                   ),
                 if (_location != null)
                   Expanded(
