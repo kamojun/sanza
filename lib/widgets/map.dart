@@ -75,14 +75,15 @@ class CompassMapPainter extends CustomPainter {
 
     void drawPlace(Place place, {paintWeak: bool}) {
       final offset = displayPosition(place);
-      canvas.drawLine(
-        Offset.zero,
-        offset,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1
-          ..color = Colors.green.shade300.withOpacity(0.3),
-      );
+      if (!paintWeak)
+        canvas.drawLine(
+          Offset.zero,
+          offset,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1
+            ..color = Colors.green.shade300.withOpacity(0.3),
+        );
       writeText(place.name, offset,
           color: paintWeak ? Colors.green.shade100 : Colors.green);
     }
