@@ -57,7 +57,7 @@ class InfoBox extends StatelessWidget {
   InfoBox.currentLocationInfo(Location currentLocation)
       : this.onDelete = null,
         this.rows = [
-          "現在地",
+          "現在地情報",
           "北緯 : ${currentLocation.lat.toStringAsFixed(5)}",
           "東経 : ${currentLocation.lng.toStringAsFixed(5)}",
           "磁北偏角 : ${currentLocation.magneticDecliniation(asDegree: true)}",
@@ -80,13 +80,14 @@ class InfoBox extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: Container(
+        padding: onDelete == null
+            ? EdgeInsets.symmetric(vertical: 10)
+            : EdgeInsets.only(top: 10),
         color: Colors.grey.shade700,
         width: width,
-        height: height,
         child: Column(
           children: [
             ...rows.map(row),
-            Spacer(),
             if (onDelete != null)
               TextButton(
                 onPressed: onDelete,
